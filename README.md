@@ -98,3 +98,53 @@ stringData:
 ```
 kubectl apply -f .\kubernetes\secret.yaml
 ```
+
+## Настройка Ingress
+
+Включите контроллер входа NGINX, выполнив следующую команду:
+
+```
+minikube addons enable ingress
+```
+
+Убедитесь, что контроллер входа NGINX запущен:
+
+```
+kubectl get pods -n ingress-nginx
+```
+
+Разверните приложение:
+
+```
+kubectl apply -f .\kubernetes\deployment.yaml
+```
+
+Убедитесь, что развертывание находится в состоянии готовности, а служба создана и доступна на узловом порту:
+
+```
+kubectl get all
+```
+
+Создайте объект Ingress, выполнив следующую команду:
+
+```
+kubectl apply -f .\kubernetes\ingress.yaml
+```
+
+Убедитесь, что IP-адрес установлен:
+
+```
+kubectl get ingress
+```
+
+Найдите внешний IP-адрес, указанный minikube и добавьте строку в конец файла /etc/hosts на вашем компьютере (вам потребуется доступ администратора). Инструкцию смотреть [здесь](https://help.reg.ru/support/dns-servery-i-nastroyka-zony/rabota-s-dns-serverami/fayl-hosts-gde-nakhoditsya-i-kak-yego-izmenit#2).:
+
+```
+minikube ip
+```
+
+__Пример__:
+
+```
+172.17.0.15 hello-world.example
+```
