@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: django-deployment
+  labels:
+    env: dev
+    app: django
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      env: dev
+      app: django
+  template:
+    metadata:
+      name: django
+      labels:
+        env: dev
+        app: django
+    spec:
+      containers:
+        - env:
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: secrets
+                  key: secret_key
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: secrets
+                  key: database_url
+            - name: ALLOWED_HOSTS
+              valueFrom:
+                secretKeyRef:
+                  name: secrets
+                  key: allowed_hosts
+            - name: DEBUG
+              valueFrom:
+                secretKeyRef:
+                  name: secrets
+                  key: debug
+          image: django_app:latest
+          imagePullPolicy: IfNotPresent
+          name: django
+          ports:
+            - containerPort: 80
+          resources: { }
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: django
+  labels:
+    env: dev
+    app: django
+spec:
+  type: NodePort
+  selector:
+    app: django
+  ports:
+    - port: 80
+      targetPort: 80
