@@ -143,8 +143,36 @@ kubectl get ingress
 minikube ip
 ```
 
-__Пример__:
+_Пример_:
 
 ```
 172.17.0.15 hello-world.example
+```
+
+
+## Настройка регулярного удаления сессий
+
+Запустите регулярную задачу с помощью манифестфайла:
+
+```shell
+kubectl apply -f .\kubernetes\django-clearsessions.yaml
+```
+
+Для запуска задание вручную в целях тестирования:
+
+```shell
+kubectl create job --from=cronjob/<cronjob-name> <job-name> -n <namespace-name>
+```
+
+Для просмотра запустите команду:
+
+```shell
+ kubectl get jobs --watch
+```
+
+_Пример успешной работы_:
+```shell
+NAME                            STATUS     COMPLETIONS   DURATION   AGE
+django-clearsessions-28854275   Complete   1/1           7s         2m21s
+django-clearsessions-28854276   Complete   1/1           7s         81s
 ```

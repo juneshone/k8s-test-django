@@ -1,0 +1,40 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: django-clearsessions
+  labels:
+    env: dev
+    app: django
+spec:
+  schedule: "0 0 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: django-clearsessions
+            image: django_app:latest
+            imagePullPolicy: IfNotPresent
+            command: ["python", "manage.py", "clearsessions"]
+            env:
+              - name: SECRET_KEY
+                valueFrom:
+                  secretKeyRef:
+                    name: secrets
+                    key: secret_key
+              - name: DATABASE_URL
+                valueFrom:
+                  secretKeyRef:
+                    name: secrets
+                    key: database_url
+              - name: ALLOWED_HOSTS
+                valueFrom:
+                  secretKeyRef:
+                    name: secrets
+                    key: allowed_hosts
+              - name: DEBUG
+                valueFrom:
+                  secretKeyRef:
+                    name: secrets
+                    key: debug
+          restartPolicy: OnFailure
