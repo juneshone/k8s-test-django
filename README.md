@@ -189,3 +189,36 @@ Running migrations:
   No migrations to apply.
 
 ```
+
+
+## Создание базы данных postgresql внутри кластера
+
+1. Установите [Helm](https://helm.sh/) и выполните команду:
+
+```shell
+helm install django-postgresql --set auth.username=PG_USERNAME --set auth.password=PG_PASSWORD --set auth.database=PG_DATABASE --set service.ports.postgresql=PG_PORT oci://registry-1.docker.io/bitnamicharts/postgresql
+```
+
+где `PG_USERNAME` - пользователь бд, `PG_PASSWORD` - пароль бд, `PG_DATABASE` - название бд, `PG_PORT` - порт бд
+
+Для подключения к вашей базе данных выполните следующую команду:
+
+```shell
+kubectl run djangoapp-postgresql-client --rm --tty -i --restart='Never' --namespace default --image docker.io/bitnami/postgresql:17.0.0-debian-12-r11 --env="PGPASSWORD=PG_PASSWORD" --command -- psql --host djangoapp-postgresql -U PG_USERNAME -d PG_DATABASE -p PG_PORT
+```
+
+
+2. Примените миграции:
+
+```shell
+kubectl apply -f .\kubernetes\job-migrate.yaml
+```
+
+3. Войдите в под с django и создайте суперпользователя
+
+```shell
+kubectl exec -it POD bash
+python manage.py createsuperuser
+```
+
+3. Поместите урл `postgres://PG_USERNAME:PG_PASSWORD@django-postgresql:PG_PORT/PG_DATABASE` для подключения к базе данных в манифест с секретом.
