@@ -99,6 +99,7 @@ stringData:
 kubectl apply -f .\kubernetes\secret.yaml
 ```
 
+
 ## Настройка Ingress
 
 Включите контроллер входа NGINX, выполнив следующую команду:
@@ -150,9 +151,9 @@ _Пример_:
 ```
 
 
-## Настройка регулярного удаления сессий
+## Настройка регулярного задания
 
-Запустите регулярную задачу с помощью манифестфайла:
+1. Запустите регулярную задачу на удаление сессий с помощью манифестфайла:
 
 ```shell
 kubectl apply -f .\kubernetes\django-clearsessions.yaml
@@ -164,15 +165,27 @@ kubectl apply -f .\kubernetes\django-clearsessions.yaml
 kubectl create job --from=cronjob/<cronjob-name> <job-name> -n <namespace-name>
 ```
 
-Для просмотра запустите команду:
-
-```shell
- kubectl get jobs --watch
-```
-
 _Пример успешной работы_:
 ```shell
+$ kubectl get jobs --watch
 NAME                            STATUS     COMPLETIONS   DURATION   AGE
 django-clearsessions-28854275   Complete   1/1           7s         2m21s
 django-clearsessions-28854276   Complete   1/1           7s         81s
+```
+
+2. Запустите задачу на применение миграций с помощью манифестфайла:
+
+```shell
+kubectl apply -f .\kubernetes\job-migrate.yaml
+```
+
+_Пример успешного запуска команды_:
+
+```sh
+$ kubectl logs job-migrate-xcss4   
+Operations to perform:
+  Apply all migrations: admin, auth, contenttypes, sessions
+Running migrations:
+  No migrations to apply.
+
 ```
