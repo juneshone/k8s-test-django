@@ -46,19 +46,3 @@ spec:
           ports:
             - containerPort: 80
           resources: { }
-
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: django-service
-  labels:
-    env: dev
-    app: django
-spec:
-  type: NodePort
-  selector:
-    app: django
-  ports:
-    - port: 80
-      targetPort: 80
