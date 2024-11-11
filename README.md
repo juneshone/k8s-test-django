@@ -118,6 +118,7 @@ kubectl get pods -n ingress-nginx
 
 ```
 kubectl apply -f .\kubernetes\deployment.yaml
+kubectl apply -f .\kubernetes\service.yaml
 ```
 
 Убедитесь, что развертывание находится в состоянии готовности, а служба создана и доступна на узловом порту:
