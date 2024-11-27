@@ -96,7 +96,7 @@ stringData:
 Добавьте внутрь кластера новый объект Secret командой:
 
 ```
-kubectl apply -f .\kubernetes\secret.yaml
+kubectl apply -f .\local-minikube-virtualbox\secret.yaml
 ```
 
 
@@ -117,8 +117,8 @@ kubectl get pods -n ingress-nginx
 Разверните приложение:
 
 ```
-kubectl apply -f .\kubernetes\deployment.yaml
-kubectl apply -f .\kubernetes\service.yaml
+kubectl apply -f .\local-minikube-virtualbox\deployment.yaml
+kubectl apply -f .\local-minikube-virtualbox\service.yaml
 ```
 
 Убедитесь, что развертывание находится в состоянии готовности, а служба создана и доступна на узловом порту:
@@ -130,7 +130,7 @@ kubectl get all
 Создайте объект Ingress, выполнив следующую команду:
 
 ```
-kubectl apply -f .\kubernetes\ingress.yaml
+kubectl apply -f .\local-minikube-virtualbox\ingress.yaml
 ```
 
 Убедитесь, что IP-адрес установлен:
@@ -157,7 +157,7 @@ _Пример_:
 1. Запустите регулярную задачу на удаление сессий с помощью манифестфайла:
 
 ```shell
-kubectl apply -f .\kubernetes\django-clearsessions.yaml
+kubectl apply -f .\local-minikube-virtualbox\django-clearsessions.yaml
 ```
 
 Для запуска задание вручную в целях тестирования:
@@ -177,7 +177,7 @@ django-clearsessions-28854276   Complete   1/1           7s         81s
 2. Запустите задачу на применение миграций с помощью манифестфайла:
 
 ```shell
-kubectl apply -f .\kubernetes\job-migrate.yaml
+kubectl apply -f .\local-minikube-virtualbox\job-migrate.yaml
 ```
 
 _Пример успешного запуска команды_:
@@ -212,7 +212,7 @@ kubectl run djangoapp-postgresql-client --rm --tty -i --restart='Never' --namesp
 2. Примените миграции:
 
 ```shell
-kubectl apply -f .\kubernetes\job-migrate.yaml
+kubectl apply -f .\local-minikube-virtualbox\job-migrate.yaml
 ```
 
 3. Войдите в под с django и создайте суперпользователя
