@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ubuntu-deployment
+  labels:
+    env: dev
+    app: ubuntu
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      env: dev
+      app: ubuntu
+  template:
+    metadata:
+      name: ubuntu
+      labels:
+        env: dev
+        app: ubuntu
+    spec:
+      volumes:
+        - name: secret-volume
+          secret:
+            secretName: pg-ssl-cert
+            defaultMode: 384
+      containers:
+        - image: ubuntu:latest
+          command: ["/bin/sh", "-c"]
+          args: ["apt update && apt install --yes postgresql-client && apt-get install wget; sleep 3600"]
+          volumeMounts:
+            - name: secret-volume
+              readOnly: true
+              mountPath: "~/.postgresql"
+          imagePullPolicy: IfNotPresent
+          name: ubuntu
