@@ -64,3 +64,29 @@ psql "host=HOST port=PORT sslmode=require dbname=DBNAME user=USER password=PASSW
 ```
 SELECT version();
 ```
+
+### Как выгрузить образ на Docker Hub
+
+В терминале, находясь в директории с вашим Dockerfile, выполните команду для создания образа:
+
+```bash
+docker build -t my-django-app -f Dockerfile .
+```
+
+Войдите в свою учетную запись Docker Hub через терминал:
+
+```bash
+docker login 
+```
+
+Тегируйте ваш образ, чтобы он соответствовал вашему репозиторию на Docker Hub. Например:
+
+```bash
+docker tag my-django-app your_dockerhub_username/my-django-app:latest
+```
+
+Теперь вы можете выгрузить свой образ на Docker Hub:
+
+```bash
+docker push your_dockerhub_username/my-django-app:latest
+```
