@@ -18,6 +18,11 @@ spec:
         env: dev
         app: django
     spec:
+      volumes:
+        - name: secret-volume
+          secret:
+            secretName: pg-root-cert
+            defaultMode: 384
       containers:
         - env:
             - name: SECRET_KEY
@@ -43,6 +48,10 @@ spec:
           image: juneshone/django_app:latest
           imagePullPolicy: IfNotPresent
           name: django
+          volumeMounts:
+            - name: secret-volume
+              readOnly: true
+              mountPath: "~/.postgresql"
           ports:
             - containerPort: 80
           resources: { }

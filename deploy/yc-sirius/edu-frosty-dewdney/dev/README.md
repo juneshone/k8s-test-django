@@ -18,20 +18,6 @@ kubectl get pods
 
 Далеее в командах используется namespace кластера K8s `edu-frosty-dewdney`. Замените на свой.
 
-## Переменные окружения
-
-Образ с Django считывает настройки из переменных окружения:
-
-`SECRET_KEY` -- обязательная секретная настройка Django. Это соль для генерации хэшей. Значение может быть любым, важно лишь, чтобы оно никому не было известно. [Документация Django](https://docs.djangoproject.com/en/3.2/ref/settings/#secret-key).
-
-`DEBUG` -- настройка Django для включения отладочного режима. Принимает значения `TRUE` или `FALSE`. [Документация Django](https://docs.djangoproject.com/en/3.2/ref/settings/#std:setting-DEBUG).
-
-`ALLOWED_HOSTS` -- настройка Django со списком разрешённых адресов. Если запрос прилетит на другой адрес, то сайт ответит ошибкой 400. Можно перечислить несколько адресов через запятую, например `127.0.0.1,192.168.0.1,site.test`. [Документация Django](https://docs.djangoproject.com/en/3.2/ref/settings/#allowed-hosts).
-
-`DATABASE_URL` -- адрес для подключения к базе данных PostgreSQL. Другие СУБД сайт не поддерживает. [Формат записи](https://github.com/jacobian/dj-database-url#url-schema).
-
-## Создание Secrets Kubernetes в кластере
-
 Чтобы секреты не утекли случайно в сеть соберите их в специальный отдельный манифест `django-secret.yaml` и поместите в него переменные окружения. Храните его отдельно от репозитория. Добавьте внутрь кластера новый объект Secret командой:
 
 ```
@@ -44,11 +30,32 @@ kubectl apply -f .\deploy\yc-sirius\edu-frosty-dewdney\dev\django-secret.yaml --
 kubectl get secrets
 ```
 
-Доступы к базе данных PostgreSQL должны лежать в секрете K8s `postgres`.
+На отдельном сервере снаружи кластера k8s работает СУБД Managed PostgreSQL. Она защищена SSL-сертификатом, который находится в секрете `pg-root-cert`. Доступы к базе данных PostgreSQL должны лежать в секрете K8s `postgres`.
+
+Если нет секрета `pg-root-cert` с SSL-сертификатом для подключения к вашей базе данных PostgreSQL, то получите сертификат согласно [инструкции](https://yandex.cloud/ru/docs/managed-postgresql/operations/connect), установите значение в `.\deploy\yc-sirius\edu-frosty-dewdney\dev\psql-secret.yaml`и выполните команду:
+
+```
+kubectl apply -f .\deploy\yc-sirius\edu-frosty-dewdney\dev\psql-secret.yaml --namespace=edu-frosty-dewdney
+```
+
+При развертывании приложения SSL-сертификат монтируется как файл внутри контейнера, делая его доступными через файловую систему.
+
+## Переменные окружения
+
+Образ с Django считывает настройки из переменных окружения:
+
+`SECRET_KEY` -- обязательная секретная настройка Django. Это соль для генерации хэшей. Значение может быть любым, важно лишь, чтобы оно никому не было известно. [Документация Django](https://docs.djangoproject.com/en/3.2/ref/settings/#secret-key).
+
+`DEBUG` -- настройка Django для включения отладочного режима. Принимает значения `TRUE` или `FALSE`. [Документация Django](https://docs.djangoproject.com/en/3.2/ref/settings/#std:setting-DEBUG).
+
+`ALLOWED_HOSTS` -- настройка Django со списком разрешённых адресов. Если запрос прилетит на другой адрес, то сайт ответит ошибкой 400. Можно перечислить несколько адресов через запятую, например `127.0.0.1,192.168.0.1,site.test`. [Документация Django](https://docs.djangoproject.com/en/3.2/ref/settings/#allowed-hosts).
+
+`DATABASE_URL` -- адрес для подключения к базе данных PostgreSQL. Другие СУБД сайт не поддерживает. [Формат записи](https://github.com/jacobian/dj-database-url#url-schema).
 
 ## Как запустить веб-приложение в dev окружении
 
-Разверните веб-приложение:
+СУБД уже запущена отдельно от кластера Kubernetes, снаружи.
+Для экспериментов с psql в кластере k8s разверните веб-приложение:
 
 ```
 kubectl apply -f .\deploy\yc-sirius\edu-frosty-dewdney\dev\django-deployment.yaml --namespace=edu-frosty-dewdney
@@ -106,44 +113,6 @@ Operations to perform:
   Apply all migrations: admin, auth, contenttypes, sessions
 Running migrations:
   No migrations to apply.
-```
-
-## Как подключиться к защищенному PostgreSQL 
-
-Запустите команду, которая отображает подробный список секретов:
-
-```
-kubectl get secrets
-```
-
-Если нет секрета `pg-ssl-cert` с SSL-сертификатом для подключения к вашей базе данных PostgreSQL, то получите сертификат согласно [инструкции](https://yandex.cloud/ru/docs/managed-postgresql/operations/connect), установите значение в `.\deploy\yc-sirius\edu-frosty-dewdney\dev\ubuntu-secret.yaml`и выполните команду:
-
-```
-kubectl apply -f .\deploy\yc-sirius\edu-frosty-dewdney\dev\ubuntu-secret.yaml --namespace=edu-frosty-dewdney
-```
-
-Если есть `pg-ssl-cert` секрет с SSL-сертификатом для подключения к вашей базе данных PostgreSQL, выполните команду:
-
-```
-kubectl apply -f .\deploy\yc-sirius\edu-frosty-dewdney\dev\ubuntu-deployment.yaml --namespace=edu-frosty-dewdney
-```
-
-Подключитесь к запущенному контейнеру:
-
-```
-kubectl exec -i -t -n NAMESPACE POD_NAME -c CONTAINER_NAME -- sh -c "clear; (bash || ash || sh)"
-```
-
-Подключитесь к базе данных:
-
-```
-psql "host=HOST port=PORT sslmode=require dbname=DBNAME user=USER password=PASSWORD"
-```
-
-Для проверки успешности подключения выполните запрос:
-
-```
-SELECT version();
 ```
 
 ## Как выгрузить образ на Docker Hub
