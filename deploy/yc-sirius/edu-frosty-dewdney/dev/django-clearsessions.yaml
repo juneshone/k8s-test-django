@@ -19,24 +19,12 @@ spec:
             imagePullPolicy: IfNotPresent
             command: ["python", "manage.py", "clearsessions"]
             env:
-              - name: SECRET_KEY
-                valueFrom:
-                  secretKeyRef:
-                    name: secrets
-                    key: secret_key
               - name: DATABASE_URL
                 valueFrom:
                   secretKeyRef:
                     name: postgres
                     key: url
-              - name: ALLOWED_HOSTS
-                valueFrom:
-                  secretKeyRef:
-                    name: secrets
-                    key: allowed_hosts
-              - name: DEBUG
-                valueFrom:
-                  secretKeyRef:
-                    name: secrets
-                    key: debug
+            envFrom:
+              - secretRef:
+                  name: secrets
           restartPolicy: OnFailure
